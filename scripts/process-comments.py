@@ -4,7 +4,7 @@ import sys
 import ujson
 import MySQLdb
 
-conn = MySQLdb.connect(host= "127.0.0.1",port=9999,db="rt")
+conn = MySQLdb.connect(host= "127.0.0.1",port=9306,db="rt")
 conn.set_character_set('utf8')
 x = conn.cursor()
 
