@@ -2,9 +2,8 @@
 
 use strict;
 use warnings;
-#use lib '/opt/rsapp/lib';
-use lib '/data/Docker-Reddit-Sphinxsearch/docker-containers/app/rsapp/lib';
-do '/data/Docker-Reddit-Sphinxsearch/docker-containers/app/rsapp/lib/Common.pm';
+use lib '/opt/rsapp/lib';
+do '/opt/rsapp/lib/Common.pm';
 
 
 # Start command line interface for application
