@@ -1,0 +1,3 @@
+Create main application container: 
+docker run -it --name rs-app --link rs-database --link rs-sphinxsearch -v /data:/data:ro rs-app /bin/bash
+
