@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 11, 2015 at 12:19 PM
+-- Generation Time: Dec 12, 2015 at 08:38 AM
 -- Server version: 5.5.44-MariaDB-1~trusty
 -- PHP Version: 5.5.9-1ubuntu4.11
 
@@ -25,10 +25,10 @@ USE `reddit`;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `com-index`
+-- Table structure for table `com_index`
 --
 
-CREATE TABLE IF NOT EXISTS `com-index` (
+CREATE TABLE IF NOT EXISTS `com_index` (
   `comment_id` bigint(20) unsigned NOT NULL,
   `created_utc` int(10) unsigned NOT NULL,
   `subreddit_id` int(10) unsigned NOT NULL,
@@ -39,12 +39,12 @@ CREATE TABLE IF NOT EXISTS `com-index` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `comment`
+-- Table structure for table `com_json`
 --
 
-CREATE TABLE IF NOT EXISTS `comment` (
+CREATE TABLE IF NOT EXISTS `com_json` (
   `comment_id` bigint(20) unsigned NOT NULL COMMENT 'Comment id',
-  `body` mediumtext CHARACTER SET utf8mb4 NOT NULL COMMENT 'Comment body'
+  `json` mediumtext CHARACTER SET utf8mb4 NOT NULL COMMENT 'Comment json'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Reddit comment bodies ';
 
 -- --------------------------------------------------------
@@ -63,15 +63,15 @@ CREATE TABLE IF NOT EXISTS `subreddit` (
 --
 
 --
--- Indexes for table `com-index`
+-- Indexes for table `com_index`
 --
-ALTER TABLE `com-index`
+ALTER TABLE `com_index`
  ADD PRIMARY KEY (`comment_id`), ADD KEY `created_utc` (`created_utc`,`subreddit_id`,`submission_id`), ADD KEY `score` (`score`);
 
 --
--- Indexes for table `comment`
+-- Indexes for table `com_json`
 --
-ALTER TABLE `comment`
+ALTER TABLE `com_json`
  ADD PRIMARY KEY (`comment_id`);
 
 --
