@@ -41,11 +41,6 @@ for (@$arr_ref) {
     $hash_ref->{$_->{'Variable_name'}} = $value;
     }
 $data->{sphinxserch}->{'SHOW INDEX rt STATUS'} = $hash_ref;
-
-
-
-
-
 $self->render(json => $data);
 $dbh->disconnect;
 }
