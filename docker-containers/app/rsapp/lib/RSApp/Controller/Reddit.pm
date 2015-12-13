@@ -7,6 +7,7 @@ use Math::Base36 ':all';
 use Math::BaseCnv;
 use Text::Markdown 'markdown';
 use HTML::Entities;
+use Cpanel::JSON::XS;
 use Time::HiRes 'time';
 use DBI;
 
@@ -46,12 +47,13 @@ my $comments = ::getComments($dbh,[map {$_->{id}} @$arr_ref]);
 $data->{debug}->{dbtime} = time - $time;
 $time = time;
 for (@$arr_ref) {
+    my $json = decode_json($comments->{$_->{id}}->{json});
     my $submission_id = lc(cnv($_->{submission_id},10,36));
     my $subreddit_id = lc(cnv($_->{subreddit_id},10,36));
     my $comment_id = lc(cnv($_->{id},10,36));
     my $score = $_->{score}+0;
     my $count = $_->{c}+0;
-    my $body = $comments->{$_->{id}}->{body};
+    my $body = $json->{body};
     my $html = "";#markdown(decode_entities($body));
     push(@{$data->{data}},{"subreddit_id" => "t5_$subreddit_id", "link_id" => "t3_$submission_id", "count" => $count,"top_comment_body" => $body,"top_comment_score" => $score,"top_comment_id" => "t1_$comment_id"});
     }
