@@ -38,15 +38,31 @@ LIMIT ?
 my $time = time;
 $query->execute($self->param('q'),$limit);
 $data->{debug}->{sphinxtime} = time - $time;
-#$query->execute('Einstein');
-
 my $arr_ref = $query->fetchall_arrayref({});
+
+# Get SphinxSearch Data
+$query = $sphinx->prepare(qq|SHOW META|);
+$query->execute();
+my $arr_ref2 = $query->fetchall_arrayref({});
+my $hash_ref;
+for (@$arr_ref2) {
+    my $value = $_->{'Value'} =~ /^[\.\d]+$/ ? $_->{'Value'}+0 : $_->{'Value'};
+    $hash_ref->{$_->{'Variable_name'}} = $value;
+    }
+$data->{debug}->{'meta'} = $hash_ref;
+undef $arr_ref2;
+undef $hash_ref;
+
 $time = time;
 my $comments = ::getComments($dbh,[map {$_->{id}} @$arr_ref]);
 $data->{debug}->{dbtime} = time - $time;
 $time = time;
 for (@$arr_ref) {
+    next unless $comments->{$_->{id}}->{json};
     my $json = decode_json($comments->{$_->{id}}->{json});
+    $json->{created_utc} = $json->{created_utc} + 0;   # force string to int for JSON
+    my $subreddit = $json->{subreddit};
+    delete $json->{subreddit};
     my $submission_id = lc(cnv($_->{submission_id},10,36));
     my $subreddit_id = lc(cnv($_->{subreddit_id},10,36));
     my $comment_id = lc(cnv($_->{id},10,36));
@@ -54,11 +70,11 @@ for (@$arr_ref) {
     my $count = $_->{c}+0;
     my $body = $json->{body};
     my $html = "";#markdown(decode_entities($body));
-    push(@{$data->{data}},{"subreddit_id" => "t5_$subreddit_id", "link_id" => "t3_$submission_id", "count" => $count,"top_comment_body" => $body,"top_comment_score" => $score,"top_comment_id" => "t1_$comment_id"});
+    push(@{$data->{data}},{"top_comment" => $json , "subreddit" => $subreddit, "subreddit_id" => "t5_$subreddit_id", "link_id" => "t3_$submission_id", "count" => $count});
     }
 $data->{debug}->{processing} = time - $time;
-  $self->render(json => $data);
-  $dbh->disconnect;
+$self->render(json => $data);
+$dbh->disconnect;
 }
 
 

@@ -13,6 +13,7 @@ sub startup {
 
   # Normal route to controller
   $r->get('/')->to('example#welcome');
+  #$r->get('/reddit/:action')->to('reddit#');
   $r->get('/reddit/search')->to('reddit#search');
   $r->get('/status/tables')->to('main#tablestatus');
   $r->get('/(*everything)')->to('main#catchall');
