@@ -23,6 +23,8 @@ my $insert_comindex = $dbh->prepare('INSERT IGNORE INTO `com_index` VALUES (?,?,
 my $count = 0;
 my %subreddit;
 my @sphinx;
+my @com_index;
+my @com_json;
 
 while (<STDIN>) {
 chomp $_;
@@ -39,30 +41,34 @@ unless ($subreddit{$subreddit}) {
     $subreddit{$subreddit} = $subreddit_id;
     }
 push(@sphinx, [$id,$body,$created_utc,$subreddit_id,$link_id,$score]);
-$insert_json->execute($id,$_);
-$insert_comindex->execute($id,$created_utc,$subreddit_id,$link_id,$score);
+push(@com_index, [$id,$created_utc,$subreddit_id,$link_id,$score]);
+push(@com_json, [$id,$_]);
 unless (++$count % 1000) {
     print ".";
-    BulkInsertSphinx(\@sphinx, "REPLACE INTO rt (id,body,date,subreddit_id,submission_id,score) VALUES ");
+    bulkInsert($dbh,\@com_index, "INSERT IGNORE INTO com_index VALUES ");
+    bulkInsert($dbh,\@com_json, "INSERT IGNORE INTO com_json VALUES ");
+    bulkInsert($sphinx,\@sphinx, "REPLACE INTO rt (id,body,date,subreddit_id,submission_id,score) VALUES ");
     $dbh->commit;
-    undef @sphinx;
     }
 }
 
-BulkInsertSphinx(\@sphinx, "REPLACE INTO rt (id,body,date,subreddit_id,submission_id,score) VALUES ") if @sphinx;
+bulkInsert($dbh,\@com_index, "INSERT IGNORE INTO com_index VALUES ");
+bulkInsert($dbh,\@com_json, "INSERT IGNORE INTO com_json VALUES ");
+bulkInsert($sphinx,\@sphinx, "REPLACE INTO rt (id,body,date,subreddit_id,submission_id,score) VALUES ");
 $dbh->commit;
 
-sub BulkInsertSphinx {
+sub bulkInsert {
+my $db_handle = shift;
 my $records = shift;
 my $query = shift;
 my $start = 0;
 for (@$records) {
     $query .= ',' if $start++;
     $query .= '('
-       . (join (",", map { $sphinx->quote($_)} @$_))
+       . (join (",", map { $db_handle->quote($_)} @$_))
        .')';
 }
-my $affected = $sphinx->do($query) or die;
+my $affected = $db_handle->do($query) or die;
 undef @$records;
 }
 
