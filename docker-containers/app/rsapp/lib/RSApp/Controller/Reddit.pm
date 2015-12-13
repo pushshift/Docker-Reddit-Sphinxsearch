@@ -3,7 +3,6 @@ use Mojo::Base 'Mojolicious::Controller';
 use strict;
 use warnings;
 use Data::Dumper;
-use Math::Base36 ':all';
 use Math::BaseCnv;
 use Text::Markdown 'markdown';
 use HTML::Entities;

@@ -14,6 +14,7 @@ sub startup {
   # Normal route to controller
   $r->get('/')->to('example#welcome');
   $r->get('/reddit/search')->to('reddit#search');
+  $r->get('/status/tables')->to('main#tablestatus');
 }
 
 1;
