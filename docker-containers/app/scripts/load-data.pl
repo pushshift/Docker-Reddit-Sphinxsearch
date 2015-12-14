@@ -25,19 +25,28 @@ my $insert_comindex = $dbh->prepare('INSERT IGNORE INTO `com_index` VALUES (?,?,
 my $count = 0;
 my %subreddit;
 my %comments;
+my $c_utc;
 
 while (<STDIN>) {
 	chomp $_;
+        $count++;
 	my $json = decode_json($_);
 	my $id = strtol($json->{id},36);
-	my $created_utc = $json->{created_utc};
+	$c_utc = $json->{created_utc};
 	$json->{original} = $_;
 	$comments{$id} = $json;
-	unless (++$count % 5000) { 
-		removeCommentsAlreadyIndexed(\%comments);
-		processRemainingComments(\%comments);
-		print "Processed ", commify($count), " [", localtime($created_utc)->strftime('%F %T'), "]\r";
+	unless ($count % 5000) { 
+		processBatch(\%comments);
 	} 
+}
+
+processBatch(\%comments);
+
+sub processBatch {
+	my $comments = shift;
+	removeCommentsAlreadyIndexed($comments);
+	processRemainingComments($comments);
+	print "Processed ", commify($count), " [", localtime($c_utc)->strftime('%F %T'), "]\r";
 }
 
 sub removeCommentsAlreadyIndexed {
