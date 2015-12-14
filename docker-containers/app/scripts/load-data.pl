@@ -30,7 +30,7 @@ while (<STDIN>) {
 	chomp $_;
 	my $json = decode_json($_);
 	my $id = strtol($json->{id},36);
-        my $created_utc = $json->{created_utc};
+	my $created_utc = $json->{created_utc};
 	$json->{original} = $_;
 	$comments{$id} = $json;
 	unless (++$count % 5000) { 
@@ -110,7 +110,7 @@ sub processRemainingComments {
 	for (qw|time_second time_minute time_hour time_day|) {
 		if ($indexes{$_}) {
 			my @array;
-			for my $s (keys $indexes{$_}) {
+			for my $s (keys %{$indexes{$_}}) {
 				push(@array,[$s,$indexes{$_}{$s}]);
 			}
 			bulkInsert($dbh, \@array,"INSERT INTO $_ (created_utc,comment_count) VALUES ", "ON DUPLICATE KEY UPDATE comment_count=comment_count+VALUES(comment_count)");
@@ -120,8 +120,8 @@ sub processRemainingComments {
 	for (qw|time_link_second time_link_minute time_link_hour|) {
 		my @array;
 		if ($indexes{$_}) {
-			for my $s (keys $indexes{$_}) {
-				for my $t (keys $indexes{$_}{$s}) {
+			for my $s (keys %{$indexes{$_}}) {
+				for my $t (keys %{$indexes{$_}{$s}}) {
 					push(@array,[$t,$s,$indexes{$_}{$s}{$t}]);
 				}
 			}
@@ -132,8 +132,8 @@ sub processRemainingComments {
 	for (qw|time_subreddit_second time_subreddit_minute time_subreddit_hour time_subreddit_day|) {
 		my @array;
 		if ($indexes{$_}) {
-			for my $s (keys $indexes{$_}) {
-				for my $t (keys $indexes{$_}{$s}) {
+			for my $s (keys %{$indexes{$_}}) {
+				for my $t (keys %{$indexes{$_}{$s}}) {
 					push(@array,[$t,$s,$indexes{$_}{$s}{$t}]);
 				}
 			}
@@ -171,4 +171,3 @@ sub commify {
 			);
 	return $sign . $commified . $frac;
 }
-
