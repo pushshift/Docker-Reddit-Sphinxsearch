@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Cpanel::JSON::XS;
 use Term::ANSIColor qw(:constants);
+use Time::Piece;
 use Data::Dumper;
 use DBI;
 use POSIX;
@@ -29,12 +30,13 @@ while (<STDIN>) {
 	chomp $_;
 	my $json = decode_json($_);
 	my $id = strtol($json->{id},36);
+        my $created_utc = $json->{created_utc};
 	$json->{original} = $_;
 	$comments{$id} = $json;
 	unless (++$count % 5000) { 
 		removeCommentsAlreadyIndexed(\%comments);
 		processRemainingComments(\%comments);
-		print "Processed ", commify($count), "\r";
+		print "Processed ", commify($count), " [", localtime($created_utc)->strftime('%F %T'), "]\r";
 	} 
 }
 
