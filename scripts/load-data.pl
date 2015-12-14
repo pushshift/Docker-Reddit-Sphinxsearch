@@ -87,7 +87,7 @@ sub processRemainingComments {
 			$subreddit{$subreddit} = $subreddit_id;
 		}
 		$indexes{time_second}{$created_utc}++;
-		$indexes{timer_minute}{floor($created_utc/60)*60}++;
+		$indexes{time_minute}{floor($created_utc/60)*60}++;
 		$indexes{time_hour}{floor($created_utc/3600)*3600}++;
 		$indexes{time_day}{floor($created_utc/86400)*86400}++;
 		$indexes{time_link_hour}{$link_id}{floor($created_utc/3600)*3600}++;
