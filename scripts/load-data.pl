@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Cpanel::JSON::XS;
+use List::MoreUtils qw /uniq/;
 use DBI;
 use POSIX;
 $|=1;
@@ -22,40 +23,61 @@ my $insert_comindex = $dbh->prepare('INSERT IGNORE INTO `com_index` VALUES (?,?,
 
 my $count = 0;
 my %subreddit;
-my @sphinx;
-my @com_index;
-my @com_json;
+my %comments;
 
 while (<STDIN>) {
 chomp $_;
 my $json = decode_json($_);
 my $id = strtol($json->{id},36);
-my $subreddit = $json->{subreddit};
-my $subreddit_id = strtol(substr($json->{subreddit_id},3),36);
-my $link_id = strtol(substr($json->{link_id},3),36);
-my $created_utc = $json->{created_utc};
-my $score = $json->{score};
-my $body = $json->{body};
-unless ($subreddit{$subreddit}) {
-    $insert_subreddit->execute($subreddit_id,$subreddit);
-    $subreddit{$subreddit} = $subreddit_id;
-    }
-push(@sphinx, [$id,$body,$created_utc,$subreddit_id,$link_id,$score]);
-push(@com_index, [$id,$created_utc,$subreddit_id,$link_id,$score]);
-push(@com_json, [$id,$_]);
-unless (++$count % 1000) {
-    print ".";
-    bulkInsert($dbh,\@com_index, "INSERT IGNORE INTO com_index VALUES ");
-    bulkInsert($dbh,\@com_json, "INSERT IGNORE INTO com_json VALUES ");
-    bulkInsert($sphinx,\@sphinx, "REPLACE INTO rt (id,body,date,subreddit_id,submission_id,score) VALUES ");
-    $dbh->commit;
+$comments{$id} = $json;
+unless (++$count % 1000) { 
+    removeCommentsAlreadyIndexed(\%comments);
+    processRemainingComments(\%comments);
+    } 
+}
+
+sub removeCommentsAlreadyIndexed {
+my $comments = shift;
+if (keys %$comments) {
+    my $check = $dbh->prepare("SELECT comment_id FROM com_json WHERE comment_id IN (" . join(",",keys %$comments) .  ")");
+    $check->execute;
+    my @data = map @$_, @{$check->fetchall_arrayref()};
+    delete @comments{@data};
     }
 }
 
+sub processRemainingComments {
+my $comments = shift;
+my (@sphinx,@com_index,@com_json);
+
+my @authors =  uniq(map { $comments->{$_}->{author} } keys %$comments);
+print scalar @authors;
+die;
+
+for (keys %$comments) {
+    my $json = $comments->{$_};
+    my $id = $json->{id}; 
+    my $subreddit = $json->{subreddit};
+    my $subreddit_id = strtol(substr($json->{subreddit_id},3),36);
+    my $link_id = strtol(substr($json->{link_id},3),36);
+    my $created_utc = $json->{created_utc};
+    my $score = $json->{score};
+    my $body = $json->{body};
+    unless ($subreddit{$subreddit}) {
+        $insert_subreddit->execute($subreddit_id,$subreddit);
+        $subreddit{$subreddit} = $subreddit_id;
+        }
+    push(@sphinx, [$id,$body,$created_utc,$subreddit_id,$link_id,$score]);
+    push(@com_index, [$id,$created_utc,$subreddit_id,$link_id,$score]);
+    push(@com_json, [$id,$_]);
+}
+
+print ".";
 bulkInsert($dbh,\@com_index, "INSERT IGNORE INTO com_index VALUES ");
 bulkInsert($dbh,\@com_json, "INSERT IGNORE INTO com_json VALUES ");
 bulkInsert($sphinx,\@sphinx, "REPLACE INTO rt (id,body,date,subreddit_id,submission_id,score) VALUES ");
 $dbh->commit;
+}
 
 sub bulkInsert {
 my $db_handle = shift;
