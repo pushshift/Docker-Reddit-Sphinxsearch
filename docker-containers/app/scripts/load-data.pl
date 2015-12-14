@@ -106,6 +106,9 @@ sub processRemainingComments {
 		$indexes{time_subreddit_minute}{$subreddit_id}{floor($created_utc/60)*60}++;
 		$indexes{time_subreddit_hour}{$subreddit_id}{floor($created_utc/3600)*3600}++;
 		$indexes{time_subreddit_day}{$subreddit_id}{floor($created_utc/86400)*86400}++;
+                $indexes{time_author_minute}{$author_id}{floor($created_utc/60)*60}++;
+                $indexes{time_author_hour}{$author_id}{floor($created_utc/3600)*3600}++;
+                $indexes{time_author_day}{$author_id}{floor($created_utc/86400)*86400}++;
 		push(@sphinx, [$id,$body,$created_utc,$subreddit_id,$link_id,$score]);
 		push(@com_index, [$id,$created_utc,$subreddit_id,$link_id,$author_id,$score]);
 		push(@com_json, [$id,$json_encoded]);
@@ -150,6 +153,17 @@ sub processRemainingComments {
 		}
 	}
 
+        for (qw|time_author_minute time_author_hour time_author_day|) {
+                my @array;
+                if ($indexes{$_}) {
+                        for my $s (keys %{$indexes{$_}}) {
+                                for my $t (keys %{$indexes{$_}{$s}}) {
+                                        push(@array,[$t,$s,$indexes{$_}{$s}{$t}]);
+                                }
+                        }
+                        bulkInsert($dbh, \@array,"INSERT INTO $_ (created_utc,author_id,count) VALUES ", "ON DUPLICATE KEY UPDATE count=count+VALUES(count)");
+                }
+        }
 
 	$dbh->commit;
 	undef %$comments;

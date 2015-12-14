@@ -114,6 +114,42 @@ CREATE TABLE IF NOT EXISTS `subreddit` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `time_author_day`
+--
+
+CREATE TABLE IF NOT EXISTS `time_author_day` (
+  `created_utc` int(10) unsigned NOT NULL,
+  `author_id` int(10) unsigned NOT NULL,
+  `count` mediumint(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `time_author_hour`
+--
+
+CREATE TABLE IF NOT EXISTS `time_author_hour` (
+  `created_utc` int(10) unsigned NOT NULL,
+  `author_id` int(10) unsigned NOT NULL,
+  `count` smallint(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `time_author_minute`
+--
+
+CREATE TABLE IF NOT EXISTS `time_author_minute` (
+  `created_utc` int(10) unsigned NOT NULL,
+  `author_id` int(10) unsigned NOT NULL,
+  `count` smallint(5) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `time_day`
 --
 
@@ -296,6 +332,24 @@ ALTER TABLE `subreddit`
  ADD PRIMARY KEY (`subreddit_id`), ADD KEY `subreddit-name` (`name`);
 
 --
+-- Indexes for table `time_author_day`
+--
+ALTER TABLE `time_author_day`
+ ADD PRIMARY KEY (`created_utc`,`author_id`), ADD UNIQUE KEY `author_id` (`author_id`,`created_utc`);
+
+--
+-- Indexes for table `time_author_hour`
+--
+ALTER TABLE `time_author_hour`
+ ADD PRIMARY KEY (`created_utc`,`author_id`), ADD UNIQUE KEY `author_id` (`author_id`,`created_utc`);
+
+--
+-- Indexes for table `time_author_minute`
+--
+ALTER TABLE `time_author_minute`
+ ADD PRIMARY KEY (`created_utc`,`author_id`), ADD UNIQUE KEY `author_id` (`author_id`,`created_utc`);
+
+--
 -- Indexes for table `time_day`
 --
 ALTER TABLE `time_day`
@@ -378,3 +432,4 @@ MODIFY `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
