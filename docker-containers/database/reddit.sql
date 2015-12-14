@@ -119,8 +119,8 @@ CREATE TABLE IF NOT EXISTS `subreddit` (
 
 CREATE TABLE IF NOT EXISTS `time_day` (
   `created_utc` int(10) unsigned NOT NULL,
-  `comment_count` int(10) unsigned NOT NULL,
-  `link_count` int(10) unsigned NOT NULL
+  `comment_count` int(10) unsigned DEFAULT NULL,
+  `link_count` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -131,8 +131,8 @@ CREATE TABLE IF NOT EXISTS `time_day` (
 
 CREATE TABLE IF NOT EXISTS `time_hour` (
   `created_utc` int(10) unsigned NOT NULL,
-  `comment_count` mediumint(5) unsigned NOT NULL,
-  `link_count` mediumint(5) unsigned NOT NULL
+  `comment_count` mediumint(5) unsigned DEFAULT NULL,
+  `link_count` mediumint(5) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -179,8 +179,8 @@ CREATE TABLE IF NOT EXISTS `time_link_second` (
 
 CREATE TABLE IF NOT EXISTS `time_minute` (
   `created_utc` int(10) unsigned NOT NULL,
-  `comment_count` smallint(5) unsigned NOT NULL,
-  `link_count` smallint(5) unsigned NOT NULL
+  `comment_count` smallint(5) unsigned DEFAULT NULL,
+  `link_count` smallint(5) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -191,8 +191,8 @@ CREATE TABLE IF NOT EXISTS `time_minute` (
 
 CREATE TABLE IF NOT EXISTS `time_second` (
   `created_utc` int(10) unsigned NOT NULL,
-  `comment_count` smallint(5) unsigned NOT NULL,
-  `link_count` smallint(5) unsigned NOT NULL
+  `comment_count` smallint(5) unsigned DEFAULT NULL,
+  `link_count` smallint(5) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -378,4 +378,3 @@ MODIFY `log_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
