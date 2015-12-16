@@ -1,7 +1,8 @@
 package RSApp;
 use Mojo::Base 'Mojolicious';
 use Mojo::mysql;
-#use Mojolicious::Plugin::Database;
+use Data::Dumper;
+use Scalar::Util qw(looks_like_number);
 
 # This method will run once at server start
 sub startup {
@@ -10,23 +11,27 @@ sub startup {
   # Documentation browser under "/perldoc"
   $self->plugin('PODRenderer');
 
-  # Database Connection
+  # Misc Helpers
 
+  $self->helper(toHashRef => sub {
+      my ($self,$array,$key) = @_;
+      my $hashref = { map { $_->{$key} => $_ } @$array };
+      return $hashref;
+ });
+
+  $self->helper(strToNum => sub {
+      my ($self, $array) = @_;
+      for my $object (@$array) {
+          for (keys %$object) {
+	  $object->{$_} = looks_like_number($object->{$_}) ? $object->{$_} + 0 : $object->{$_};
+          }
+      }
+      return $array;
+ });
+
+  # Database Connection
   $self->helper(db => sub { state $pg = Mojo::mysql->new('mysql://root@rs-database/reddit') });
   $self->helper(sphinx => sub { state $sphinx = Mojo::mysql->new('mysql://root@rs-sphinxsearch:9306/rt') });
-#  $self->plugin('database', {
-#            databases => {
-#                'db' => {
-#                 dsn      => 'dbi:mysql:dbname=reddit;host=rs-database',
-#                 username => 'root',
-#                 password => '',
-#                 options  => { AutoCommit => 1 },
-#                 },
-#                'sphinx' => {
-#                    dsn      => 'dbi:mysql:database=rt;host=rs-sphinxsearch;port=9306',
-#                },
-#            },
-#        });
 
   # Router
   my $r = $self->routes;

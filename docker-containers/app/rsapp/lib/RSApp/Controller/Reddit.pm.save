@@ -29,8 +29,10 @@ my $self = shift;
 my $limit = $self->param('limit') ? int $self->param('limit') : 25;
 if ($limit > 100) {$limit = 100}
 my $results = $self->sphinx->db->query("SELECT * FROM rt WHERE match(?) ORDER BY date DESC LIMIT ?",$self->param('q'),$limit)->hashes;
-$self->render(json => $self->toHashRef($self->strToNum($results),"id"));
+print Dumper map {$_->{date}} @$results;
+$self->render(json => $self->strToNum($results));
 }
+
 
 sub search {
 my $self = shift;
